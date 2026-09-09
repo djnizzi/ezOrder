@@ -304,21 +304,51 @@ export function App() {
   // Add & Edit item
   const handleAddNewItem = () => {
     setIsAddingNew(true);
+    let initialData: any = {};
+    if (document?.format === 'csv' && document.csvMeta?.headers) {
+      const row: Record<string, string> = {};
+      document.csvMeta.headers.forEach((h) => {
+        row[h] = '';
+      });
+      initialData = { row, rawFields: document.csvMeta.headers.map(() => '') };
+    } else if (document?.format === 'm3u') {
+      initialData = { title: '', uri: '', rawDirectives: [] };
+    } else if (document?.format === 'xml') {
+      initialData = {
+        tagName: document.xmlMeta?.itemTag || 'item',
+        attributes: {},
+        innerContent: '',
+        rawXml: '',
+      };
+    } else {
+      initialData = { text: '' };
+    }
+
     setEditingItem({
       id: generateId(),
       originalIndex: items.length,
-      label: 'New Item',
+      label: '',
       sublabel: '',
-      data: {} as any,
+      data: initialData,
     });
   };
 
-  const handleSaveItem = (updated: OrderedItem) => {
+  const handleSaveItem = (
+    updated: OrderedItem | OrderedItem[],
+    insertPosition: 'top' | 'bottom' = 'bottom'
+  ) => {
+    const updatedArray = Array.isArray(updated) ? updated : [updated];
+
     if (isAddingNew) {
-      setItems([...items, updated]);
+      if (insertPosition === 'top') {
+        setItems([...updatedArray, ...items]);
+      } else {
+        setItems([...items, ...updatedArray]);
+      }
       setIsAddingNew(false);
     } else {
-      setItems(items.map((i) => (i.id === updated.id ? updated : i)));
+      const single = updatedArray[0];
+      setItems(items.map((i) => (i.id === single.id ? single : i)));
     }
     setEditingItem(null);
   };
@@ -374,6 +404,7 @@ export function App() {
                 onSearchChange={setSearchTerm}
                 selectedCount={selectedIds.size}
                 totalCount={items.length}
+                onAddRow={handleAddNewItem}
                 onSelectAll={handleSelectAll}
                 onDeselectAll={handleDeselectAll}
                 onMoveToTop={handleMoveToTop}
@@ -407,6 +438,7 @@ export function App() {
                   setEditingItem(item);
                 }}
                 onDeleteItem={handleDeleteSingle}
+                onAddRow={handleAddNewItem}
               />
             </div>
 
@@ -427,7 +459,7 @@ export function App() {
         <ItemEditModal
           isOpen={true}
           item={editingItem}
-          format={document ? document.format : 'txt'}
+          document={document}
           isNew={isAddingNew}
           onClose={() => {
             setEditingItem(null);

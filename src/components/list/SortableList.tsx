@@ -16,7 +16,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { GripVertical, Layers } from 'lucide-react';
+import { GripVertical, Layers, PlusCircle } from 'lucide-react';
 import { OrderedItem } from '../../types';
 import { SortableItem } from './SortableItem';
 
@@ -30,6 +30,7 @@ interface SortableListProps {
   onMoveDown: (id: string) => void;
   onEditItem: (item: OrderedItem) => void;
   onDeleteItem: (id: string) => void;
+  onAddRow?: () => void;
 }
 
 export const SortableList: React.FC<SortableListProps> = ({
@@ -42,6 +43,7 @@ export const SortableList: React.FC<SortableListProps> = ({
   onMoveDown,
   onEditItem,
   onDeleteItem,
+  onAddRow,
 }) => {
   const [activeId, setActiveId] = useState<string | null>(null);
 
@@ -115,6 +117,17 @@ export const SortableList: React.FC<SortableListProps> = ({
               />
             );
           })}
+
+          {onAddRow && (
+            <button
+              type="button"
+              onClick={onAddRow}
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700/80 hover:border-indigo-400 dark:hover:border-indigo-500 text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 bg-white/40 dark:bg-gray-800/30 hover:bg-indigo-50/40 dark:hover:bg-indigo-950/20 text-xs font-semibold transition group cursor-pointer mt-3"
+            >
+              <PlusCircle className="w-4 h-4 text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition" />
+              <span>Add New Row to List</span>
+            </button>
+          )}
         </div>
       </SortableContext>
 

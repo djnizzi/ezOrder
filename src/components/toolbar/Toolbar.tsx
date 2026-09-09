@@ -15,6 +15,7 @@ import {
   Redo2,
   X,
   SlidersHorizontal,
+  PlusCircle,
 } from 'lucide-react';
 import { ParsedDocument } from '../../types';
 
@@ -24,6 +25,7 @@ interface ToolbarProps {
   onSearchChange: (val: string) => void;
   selectedCount: number;
   totalCount: number;
+  onAddRow: () => void;
   onSelectAll: () => void;
   onDeselectAll: () => void;
   onMoveToTop: () => void;
@@ -50,6 +52,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   onSearchChange,
   selectedCount,
   totalCount,
+  onAddRow,
   onSelectAll,
   onDeselectAll,
   onMoveToTop,
@@ -73,10 +76,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
   return (
     <div className="bg-white dark:bg-gray-800/90 border border-gray-200 dark:border-gray-700/80 rounded-2xl shadow-sm p-3 mb-4 flex flex-col gap-3 transition-colors">
-      {/* Top Row: Search, Undo/Redo, Quick Sorts */}
+      {/* Top Row: Search, Add Row, Undo/Redo, Quick Sorts */}
       <div className="flex flex-wrap items-center justify-between gap-2.5">
         {/* Search Bar */}
-        <div className="relative flex-1 min-w-[200px] max-w-sm">
+        <div className="relative flex-1 min-w-[180px] max-w-sm">
           <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
@@ -95,6 +98,17 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             </button>
           )}
         </div>
+
+        {/* Add Row Button */}
+        <button
+          type="button"
+          onClick={onAddRow}
+          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 shadow-xs hover:shadow active:scale-98 transition shrink-0"
+          title="Add a new row to list"
+        >
+          <PlusCircle className="w-4 h-4" />
+          <span>Add Row</span>
+        </button>
 
         {/* Undo / Redo */}
         <div className="flex items-center gap-1 border-r border-gray-200 dark:border-gray-700 pr-2">
