@@ -335,12 +335,18 @@ export function App() {
 
   const handleSaveItem = (
     updated: OrderedItem | OrderedItem[],
-    insertPosition: 'top' | 'bottom' = 'bottom'
+    insertPosition: 'top' | 'bottom' = 'bottom',
+    targetIdx?: number
   ) => {
     const updatedArray = Array.isArray(updated) ? updated : [updated];
 
     if (isAddingNew) {
-      if (insertPosition === 'top') {
+      if (typeof targetIdx === 'number') {
+        const idx = Math.max(0, Math.min(targetIdx - 1, items.length));
+        const before = items.slice(0, idx);
+        const after = items.slice(idx);
+        setItems([...before, ...updatedArray, ...after]);
+      } else if (insertPosition === 'top') {
         setItems([...updatedArray, ...items]);
       } else {
         setItems([...items, ...updatedArray]);
@@ -348,7 +354,16 @@ export function App() {
       setIsAddingNew(false);
     } else {
       const single = updatedArray[0];
-      setItems(items.map((i) => (i.id === single.id ? single : i)));
+      if (typeof targetIdx === 'number') {
+        // Remove old item
+        const without = items.filter((i) => i.id !== single.id);
+        const idx = Math.max(0, Math.min(targetIdx - 1, without.length));
+        const before = without.slice(0, idx);
+        const after = without.slice(idx);
+        setItems([...before, single, ...after]);
+      } else {
+        setItems(items.map((i) => (i.id === single.id ? single : i)));
+      }
     }
     setEditingItem(null);
   };
@@ -461,6 +476,7 @@ export function App() {
           item={editingItem}
           document={document}
           isNew={isAddingNew}
+          totalCount={items.length}
           onClose={() => {
             setEditingItem(null);
             setIsAddingNew(false);

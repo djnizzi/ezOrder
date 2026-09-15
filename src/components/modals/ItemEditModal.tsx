@@ -25,10 +25,12 @@ interface ItemEditModalProps {
   item: OrderedItem | null;
   document: ParsedDocument | null;
   isNew?: boolean;
+  totalCount: number;
   onClose: () => void;
   onSave: (
     itemsToAddOrUpdate: OrderedItem | OrderedItem[],
-    insertPosition?: 'top' | 'bottom'
+    insertPosition?: 'top' | 'bottom',
+    targetIdx?: number
   ) => void;
 }
 
@@ -37,6 +39,7 @@ export const ItemEditModal: React.FC<ItemEditModalProps> = ({
   item,
   document,
   isNew = false,
+  totalCount,
   onClose,
   onSave,
 }) => {
@@ -44,6 +47,7 @@ export const ItemEditModal: React.FC<ItemEditModalProps> = ({
 
   const format = document.format;
   const [insertPosition, setInsertPosition] = useState<'top' | 'bottom'>('bottom');
+  const [targetPosition, setTargetPosition] = useState<number | ''>('');
 
   // Generic fields
   const [label, setLabel] = useState(item.label || '');
@@ -173,7 +177,7 @@ export const ItemEditModal: React.FC<ItemEditModalProps> = ({
         },
       };
 
-      onSave(updatedItem, insertPosition);
+      onSave(updatedItem, insertPosition, targetPosition ? Number(targetPosition) : undefined);
       onClose();
       return;
     }
@@ -203,7 +207,7 @@ export const ItemEditModal: React.FC<ItemEditModalProps> = ({
         data: { text },
       };
 
-      onSave(updatedItem, insertPosition);
+      onSave(updatedItem, insertPosition, targetPosition ? Number(targetPosition) : undefined);
       onClose();
       return;
     }
@@ -244,7 +248,7 @@ export const ItemEditModal: React.FC<ItemEditModalProps> = ({
         },
       };
 
-      onSave(updatedItem, insertPosition);
+      onSave(updatedItem, insertPosition, targetPosition ? Number(targetPosition) : undefined);
       onClose();
       return;
     }
@@ -264,7 +268,7 @@ export const ItemEditModal: React.FC<ItemEditModalProps> = ({
             rawXml,
           },
         };
-        onSave(updatedItem, insertPosition);
+        onSave(updatedItem, insertPosition, targetPosition ? Number(targetPosition) : undefined);
         onClose();
         return;
       }
@@ -298,7 +302,7 @@ export const ItemEditModal: React.FC<ItemEditModalProps> = ({
         },
       };
 
-      onSave(updatedItem, insertPosition);
+      onSave(updatedItem, insertPosition, targetPosition ? Number(targetPosition) : undefined);
       onClose();
       return;
     }
@@ -310,7 +314,8 @@ export const ItemEditModal: React.FC<ItemEditModalProps> = ({
         label: label.trim() || 'New Item',
         sublabel: sublabel.trim() || undefined,
       },
-      insertPosition
+      insertPosition,
+      targetPosition ? Number(targetPosition) : undefined
     );
     onClose();
   };
@@ -378,6 +383,25 @@ export const ItemEditModal: React.FC<ItemEditModalProps> = ({
               </div>
             </div>
           )}
+
+          {/* Exact Position (always shown) */}
+          <div className="flex items-center space-x-2 bg-gray-50 dark:bg-gray-900/60 p-2.5 rounded-xl border border-gray-200 dark:border-gray-700">
+            <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+              {isNew ? 'Exact Insert Position:' : 'Move to Position:'}
+            </span>
+            <input
+              type="number"
+              min={1}
+              max={isNew ? totalCount + 1 : totalCount}
+              value={targetPosition ?? ''}
+              onChange={(e) => setTargetPosition(e.target.value ? Number(e.target.value) : '')}
+              placeholder={isNew ? `1–${totalCount + 1}` : `1–${totalCount}`}
+              className="w-20 text-xs p-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900"
+            />
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              (leave blank to use {isNew ? 'insert position' : 'current'})
+            </span>
+          </div>
 
           {/* ================= CSV FORMAT INPUTS ================= */}
           {format === 'csv' && (
